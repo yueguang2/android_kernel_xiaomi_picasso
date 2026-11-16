@@ -1,0 +1,8 @@
+This repository contains code derived from:
+
+- Linux kernel source, licensed under GPL-2.0 (see COPYING).
+- KernelSU (https://github.com/tiann/KernelSU), GPL-3.0.
+- SUSFS (https://gitlab.com/simonpunk/susfs4ksu), GPL-2.0.
+- NeoZygisk and Vector, under their respective upstream licenses.
+
+Original copyright notices and license headers are retained in the source files. Device-specific build scripts and documentation are provided as-is, without warranty.
