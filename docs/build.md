@@ -9,13 +9,25 @@
 
 ## 构建步骤
 
+先初始化子模块，并应用 KernelSU 兼容补丁：
+
 ```bash
-export PATH=/path/to/clang/bin:/path/to/host/usr/bin:$PATH
-make O=out ARCH=arm64 \
+git submodule update --init --recursive
+git -C KernelSU apply ../patches/kernelsu-3.3.1-stale-hooks-compat.patch
+git -C KernelSU apply ../patches/kernelsu-3.3.1-susfs-kconfig.patch
+git -C KernelSU apply ../patches/kernelsu-3.3.1-susfs-init.patch
+```
+
+然后构建：
+
+```bash
+source ./.env.sh
+./build.sh -v ksu defconfig
+make O=../out/picasso/ksu ARCH=arm64 \
   CC=clang CROSS_COMPILE=aarch64-linux-gnu- \
   CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
   CLANG_TRIPLE=aarch64-linux-gnu- \
   LLVM=1 LLVM_IAS=1 LD=ld.lld -j$(nproc)
 ```
 
-具体配置和打包命令以 `scripts/` 下的脚本为准。构建产物不要提交到 Git。
+具体配置和打包命令以 `build.sh` 与 `scripts/` 下的脚本为准。构建产物不要提交到 Git。
