@@ -1,0 +1,49 @@
+diff --git a/kernel/feature/sucompat.c b/kernel/feature/sucompat.c
+index 4efbf91d..5cb2bc57 100644
+--- a/kernel/feature/sucompat.c
++++ b/kernel/feature/sucompat.c
+@@ -344,6 +344,14 @@ SUCOMPAT_HOOK_TYPE ksu_handle_execveat(int *fd, struct filename **filename_ptr,
+ 	return 0;
+ }
+ 
++bool ksu_execveat_hook __read_mostly = true;
++
++int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,
++				 void *envp, int *flags)
++{
++	return ksu_handle_execveat(fd, filename_ptr, argv, envp, flags);
++}
++
+ // take note: char *filename, for do_execve_common on < 3.14
+ SUCOMPAT_HOOK_TYPE ksu_legacy_execve_sucompat(const char **filename_ptr, void *argv, void *envp)
+ {
+diff --git a/kernel/runtime/ksud.h b/kernel/runtime/ksud.h
+index 569637af..69e218eb 100644
+--- a/kernel/runtime/ksud.h
++++ b/kernel/runtime/ksud.h
+@@ -9,6 +9,6 @@ void ksu_ksud_exit();
+ static void ksu_stop_input_hook_runtime();
+ 
+ static bool ksu_vfs_read_hook __read_mostly;
+-static bool ksu_input_hook __read_mostly;
++extern bool ksu_input_hook;
+ 
+ #endif
+diff --git a/kernel/runtime/ksud_integration.c b/kernel/runtime/ksud_integration.c
+index 3ce7dfbe..0a2c7fa0 100644
+--- a/kernel/runtime/ksud_integration.c
++++ b/kernel/runtime/ksud_integration.c
+@@ -24,7 +24,12 @@ static const char KERNEL_SU_RC[] =
+ static void stop_init_rc_hook();
+ 
+ static bool ksu_vfs_read_hook __read_mostly = true;
+-static bool ksu_input_hook __read_mostly = true;
++bool ksu_input_hook __read_mostly = true;
++
++int ksu_handle_input_handle_event(unsigned int *type, unsigned int *code, int *value)
++{
++	return 0;
++}
+ 
+ #ifdef KSU_CAN_USE_JUMP_LABEL
+ DEFINE_STATIC_KEY_TRUE(ksud_vfs_read_key);

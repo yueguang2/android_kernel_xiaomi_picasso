@@ -102,6 +102,11 @@ patches-*
 patches
 series
 
+# this project tracks its own patch series
+!patches/
+!patches/README.md
+!patches/*.patch
+
 # cscope files
 cscope.*
 ncscope.*

@@ -12,6 +12,7 @@
 - 上游 `august-aosp/android_kernel_xiaomi_picasso` 的 `staging` 已包含 `KernelSU: Switch to backslashxx fork (v3.3.1+)`（commit `920c3be1ccd4`），说明最新 KernelSU 的旧内核适配已有现成基础。
 - 上游历史中有 `treewide: Backport SUSFS v1.5.11 for k4.19`（commit `88836b6906c1`），后来被 revert；可作为 4.19 SUSFS 的参考，但不能直接当作稳定实现。
 - `susfs4ksu` 的 `kernel-4.19` 分支停在 v1.5.5；v2.4.0 只在 GKI 5.10+ 分支。
+- `rsuntk/KernelSU` 的 `susfs-rksu-master` 分支内置了 SUSFS 调用和 `KernelSU - SUSFS` 配置，内核侧仍需要单独的 `fs/susfs.c` 补丁；可作为“旧内核 + SUSFS”的参考实现，但它对应的 KernelSU 版本较旧，不能直接当作最新版方案。
 
 ## 移植难点
 

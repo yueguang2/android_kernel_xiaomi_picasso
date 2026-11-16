@@ -7,6 +7,10 @@
 - 设备内核源码：本仓库
 - KernelSU 子模块：`KernelSU/`（按分支固定版本）
 
+## clang 18 兼容
+
+上游 `staging` 的 Makefile 对 clang 开启 MLGO `-regalloc-enable-advisor`，clang 18 不支持该选项，会报 `Requested regalloc eviction advisor analysis could not be created`。本仓库在 `Makefile` 中为 clang 18 关闭该选项；如果使用 clang 19+ 可以恢复。
+
 ## 构建步骤
 
 ```bash
