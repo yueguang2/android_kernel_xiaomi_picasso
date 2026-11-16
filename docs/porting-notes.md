@@ -18,7 +18,8 @@
 
 1. SUSFS v2.x 的 VFS 钩子（`fs/namei.c`、`fs/namespace.c`、`fs/stat.c`、`fs/readdir.c` 等）基于 5.10+ 的接口，4.19 需要逐项回移。
 2. KernelSU 3.3.1 使用新的 supercall/LSM 结构，旧版 SUSFS 的 prctl 接入不能直接复用。
-3. 需要真机测试 boot、root、SUSFS、Vector、模块安装，不能只看编译通过。
+3. upstream `staging` 的 4.19 内核还保留了旧 KernelSU 的 manual hook 引用（`fs/exec.c`、`fs/read_write.c`、`drivers/input/input.c`），与 backslashxx v3.3.1+ 的符号不一致；在替换 KSU 源后需要补兼容层或清理旧 hook，否则链接阶段会出现 `ksu_handle_*`/`ksu_*_hook` undefined。
+4. 需要真机测试 boot、root、SUSFS、Vector、模块安装，不能只看编译通过。
 
 ## 测试清单
 
