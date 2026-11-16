@@ -1,0 +1,18 @@
+diff --git a/kernel/ksu.c b/kernel/ksu.c
+index 7f102690..26ba205d 100644
+--- a/kernel/ksu.c
++++ b/kernel/ksu.c
+@@ -277,6 +277,13 @@ static int __init kernelsu_init(void)
+ 	ksu_shell_su_adb_only_init();
+ 	ksu_supercalls_init();
+ 
++#ifdef CONFIG_KSU_SUSFS
++	extern void susfs_init(void);
++	extern bool susfs_is_boot_completed_triggered;
++	susfs_init();
++	susfs_is_boot_completed_triggered = true;
++#endif
++
+ #if defined(CONFIG_KSU_KPROBES_KSUD) && !defined(CONFIG_KSU_TAMPER_SYSCALL_TABLE) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+ 	kp_ksud_init();
+ #endif
