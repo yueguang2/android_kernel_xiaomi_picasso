@@ -9,7 +9,9 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 | 分支 | 内容 | 状态 |
 | --- | --- | --- |
 | `stable-ksu-1.0.5-susfs-1.5.5` | KernelSU 1.0.5 + SUSFS 1.5.5 + NeoZygisk + Vector | 设备已验证 |
-| `next/ksu-3.3.1-susfs-2.4.0` | KernelSU 3.3.1+ + SUSFS 4.19 backport | 开发中 |
+| `next/ksu-3.3.1-susfs-2.4.0` | KernelSU 3.3.1+ + SUSFS 4.19 backport | KSU baseline 编译通过，SUSFS 移植中 |
+
+最新 KernelSU baseline 的编译验证已完成；SUSFS 仍待接入和真机测试。
 
 ## 设备与系统
 

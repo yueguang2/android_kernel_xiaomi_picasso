@@ -10,7 +10,7 @@
 
 当前 WIP：
 
-- `kernelsu-3.3.1-stale-hooks-compat.patch`：为 upstream `staging` 的旧 manual hook 引用补 KSU 兼容符号；尚未完成，只用于继续定位编译问题，不要当作可发布补丁。
+- `kernelsu-3.3.1-stale-hooks-compat.patch`：为 upstream `staging` 的旧 manual hook 引用补 KSU 兼容符号；当前已通过编译验证（KernelSU 3.3.1+ baseline），但尚未做真机 boot/root 测试，不要当作最终发布补丁。
 
 
 每个补丁必须注明：
