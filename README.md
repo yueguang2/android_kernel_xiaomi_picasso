@@ -9,10 +9,10 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 | 分支 | 内容 | 状态 |
 | --- | --- | --- |
 | `stable-ksu-1.0.5-susfs-1.5.5` | KernelSU 1.0.5 + SUSFS 1.5.5 + NeoZygisk + Vector | 设备已验证 |
-| `next/ksu-3.3.1-susfs-2.4.0` | KernelSU 3.3.1+ baseline | 编译通过，SUSFS 待接 |
-| `feature/susfs-1.5.11` | KernelSU 3.3.1+ + SUSFS 1.5.11 内核补丁 | 编译通过，真机待测 |
+| `next/ksu-3.3.1-susfs-2.4.0` | KernelSU 3.3.1+ baseline | 编译通过；真机 `fastboot boot` 失败，待修复 |
+| `feature/susfs-1.5.11` | KernelSU 3.3.1+ + SUSFS 1.5.11 内核补丁 | 编译通过；真机 `fastboot boot` 失败，实验分支 |
 
-SUSFS v2.4.0 的 4.19 backport 仍是后续目标；当前先以 v1.5.11 打通完整编译链路。
+SUSFS v2.4.0 的 4.19 backport 仍是后续目标。当前 `next` / `feature` 代码只能作为编译验证，**不要直接刷入日常使用**；稳定版仍是 `stable-ksu-1.0.5-susfs-1.5.5`。
 
 ## 设备与系统
 
