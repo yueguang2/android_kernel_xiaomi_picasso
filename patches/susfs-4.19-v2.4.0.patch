@@ -515,6 +515,31 @@ index 52f3e8797aef..638076a6fba1 100644
  			if (++pos <= ctx->pos)
  				continue;
  
+diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
+index fa762c5fbcb2..5c42eb61f426 100644
+--- a/fs/proc/cmdline.c
++++ b/fs/proc/cmdline.c
+@@ -4,8 +4,20 @@
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+ 
++#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
++extern struct static_key_false susfs_is_fake_cmdline_or_bootconfig_buffer_set;
++extern void susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
++#endif
++
+ static int cmdline_proc_show(struct seq_file *m, void *v)
+ {
++#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
++	if (static_branch_likely(&susfs_is_fake_cmdline_or_bootconfig_buffer_set)) {
++		susfs_spoof_cmdline_or_bootconfig(m);
++		seq_putc(m, '\n');
++		return 0;
++	}
++#endif
+ 	seq_puts(m, saved_command_line);
+ 	seq_putc(m, '\n');
+ 	return 0;
 diff --git a/fs/proc/fd.c b/fs/proc/fd.c
 index 5fd5d5453e05..e9e7c344f636 100644
 --- a/fs/proc/fd.c
@@ -5359,3 +5384,41 @@ index 7f2f7997e224..cfc4bd4b926a 100644
  	}
  #else
  	if (rc)
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 51aabc438590..503eb93850dc 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -55,6 +55,10 @@
+ 
+ #include "flask.h"
+ #include "avc.h"
++#ifdef CONFIG_KSU_SUSFS
++extern bool susfs_is_sus_type_rcu(u32 sid);
++extern void susfs_spoof_avd_allowed_rcu(u32 s_type, u32 t_type, u32 c_type, u32 *avd_allowed);
++#endif
+ #include "avc_ss.h"
+ #include "security.h"
+ #include "context.h"
+@@ -1204,6 +1208,10 @@ void security_compute_av_user(struct selinux_state *state,
+ 
+ 	context_struct_compute_av(policydb, scontext, tcontext, tclass, avd,
+ 				  NULL);
++#ifdef CONFIG_KSU_SUSFS
++	susfs_spoof_avd_allowed_rcu(scontext->type, tcontext->type, tclass,
++				    &avd->allowed);
++#endif
+  out:
+ 	read_unlock(&state->ss->policy_rwlock);
+ 	return;
+@@ -1439,6 +1447,11 @@ static int string_to_context_struct(struct policydb *pol,
+ 	if (!typdatum || typdatum->attribute)
+ 		goto out;
+ 
++#ifdef CONFIG_KSU_SUSFS
++	if (susfs_is_sus_type_rcu(typdatum->value))
++		goto out;
++#endif
++
+ 	ctx->type = typdatum->value;
+ 
+ 	rc = mls_context_to_sid(pol, oldc, p, ctx, sidtabp, def_sid);

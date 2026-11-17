@@ -193,7 +193,7 @@ index 92579804..94e01415 100644
  
  install_ksu_fd:
 diff --git a/kernel/ksu.c b/kernel/ksu.c
-index 7f102690..509388e3 100644
+index 7f102690..2ad522ad 100644
 --- a/kernel/ksu.c
 +++ b/kernel/ksu.c
 @@ -63,6 +63,7 @@
@@ -218,6 +218,32 @@ index 7f102690..509388e3 100644
  #if defined(CONFIG_KSU_KPROBES_KSUD) && !defined(CONFIG_KSU_TAMPER_SYSCALL_TABLE) && !defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
  	kp_ksud_init();
  #endif
+@@ -336,6 +344,10 @@ static int __init kernelsu_lkm_init(void)
+ 	setup_ksu_cred();
+ 
+ 	track_throne(false);
++#ifdef CONFIG_KSU_SUSFS
++	susfs_parse_priority_app_strings();
++	susfs_parse_sus_path_app_strings();
++#endif
+ 	on_post_fs_data();
+ 	on_boot_completed();
+ 
+diff --git a/kernel/manager/pkg_observer.c b/kernel/manager/pkg_observer.c
+index 8a7d780c..d3b2e6d0 100644
+--- a/kernel/manager/pkg_observer.c
++++ b/kernel/manager/pkg_observer.c
+@@ -53,6 +53,10 @@ static void ksu_rename_observer_slow(struct dentry *old_dentry, struct dentry *n
+ 
+ 	pr_info("renameat: %s -> %s, new path: %s\n", old_dentry->d_iname, new_dentry->d_iname, buf);
+ 	track_throne(false);
++#ifdef CONFIG_KSU_SUSFS
++	susfs_parse_priority_app_strings();
++	susfs_parse_sus_path_app_strings();
++#endif
+ 	return;
+ }
+ 
 diff --git a/kernel/runtime/ksud.h b/kernel/runtime/ksud.h
 index 569637af..87f9d407 100644
 --- a/kernel/runtime/ksud.h
@@ -293,6 +319,43 @@ index 17b24164..e009b6b5 100644
  }
  
  /*
+diff --git a/kernel/selinux/sepolicy.c b/kernel/selinux/sepolicy.c
+index 01068b39..9776ff35 100644
+--- a/kernel/selinux/sepolicy.c
++++ b/kernel/selinux/sepolicy.c
+@@ -1,5 +1,10 @@
+ #define KSU_SUPPORT_ADD_TYPE
+ 
++#ifdef CONFIG_KSU_SUSFS
++extern int susfs_add_sus_avd_allowed_by_type(u32 s_type, u32 t_type, u32 c_type, u32 orig_avd_allowed);
++extern int susfs_add_sus_type(const char *secctx, u32 type_value);
++#endif
++
+ /*
+  * Adapt to Huawei HISI kernel without affecting other kernels ,
+  * Huawei Hisi Kernel EBITMAP Enable or Disable Flag ,
+@@ -339,6 +344,10 @@ static bool add_rule_raw(struct policydb *db, struct type_datum *src, struct typ
+ 				return false;
+ 		}
+ 
++#ifdef CONFIG_KSU_SUSFS
++		susfs_add_sus_avd_allowed_by_type(src->value, tgt->value,
++						  cls->value, node->datum.u.data);
++#endif
+ 		if (invert) {
+ 			if (perm)
+ 				node->datum.u.data &= ~(1U << (perm->value - 1));
+@@ -798,6 +807,10 @@ static bool add_type(struct policydb *db, const char *type_name, bool attr)
+ 	db->sym_val_to_name[SYM_TYPES] = new_val_to_name_types;
+ 	db->sym_val_to_name[SYM_TYPES][value - 1] = key;
+ 
++#ifdef CONFIG_KSU_SUSFS
++	susfs_add_sus_type(type_name, value);
++#endif
++
+ 	int i;
+ 	for (i = 0; i < db->p_roles.nprim; ++i) {
+ 		ebitmap_set_bit(&db->role_val_to_struct[i]->types, value - 1,
 diff --git a/kernel/supercall/dispatch.c b/kernel/supercall/dispatch.c
 index e3bdc257..c82f1e97 100644
 --- a/kernel/supercall/dispatch.c

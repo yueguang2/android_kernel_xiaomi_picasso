@@ -45,7 +45,9 @@
 - `SUS_MOUNT`：在 `/sdcard/Android` 解密前创建 KSU 测试挂载 `/data/local/tmp/mnttest3`，`/proc/self/mountinfo` 中 mnt_id 为 `2000000003`；root 可见，普通应用上下文不可见；`hide_sus_mnts_for_non_su_procs 1` 时 `/proc/self/mountinfo` 过滤生效
 - `OPEN_REDIRECT`：`add_open_redirect /system/etc/hosts /data/local/tmp/hosts_fake2 0` 后，root 打开 `/system/etc/hosts` 得到重定向内容；uid 10238 应用仍看到原文件
 - `SPOOF_UNAME`：`set_uname 4.19.248-test SUSFS-TEST` 后应用看到测试值，`set_uname default default` 可恢复
-- `SUS_MAP` / `add_sus_path_loop` / `set_priority_uid_filter` 命令均返回成功并写入 dmesg
+- `SPOOF_CMDLINE_OR_BOOTCONFIG`：`set_cmdline_or_bootconfig /data/local/tmp/fake_cmdline` 后读取 `/proc/cmdline` 得到伪内容（root/应用侧均走同一 proc 输出路径）
+- SELinux policy 层：KSU `sepolicy.c` 已调用 `susfs_add_sus_type` / `susfs_add_sus_avd_allowed_by_type`，`security/selinux/ss/services.c` 已接入 SUS 类型解析跳过与 AVD allowed 恢复；开机 `Enforcing` 正常
+- `SUS_MAP` / `add_sus_path_loop` / `set_priority_uid_filter` 命令均返回成功并写入 dmesg；包安装/更新后通过 `pkg_observer` 刷新 SUS_PATH/priority UID 过滤器
 - `lookup_fast` RCU 分支问题已修复；SUS_PATH 查询不再卡死
 - 最终镜像连续启动、应用启动、打开普通文件路径无 kernel panic / BUG；Vector `vectord` 正常运行
 

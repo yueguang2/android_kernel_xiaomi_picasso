@@ -55,6 +55,10 @@
 
 #include "flask.h"
 #include "avc.h"
+#ifdef CONFIG_KSU_SUSFS
+extern bool susfs_is_sus_type_rcu(u32 sid);
+extern void susfs_spoof_avd_allowed_rcu(u32 s_type, u32 t_type, u32 c_type, u32 *avd_allowed);
+#endif
 #include "avc_ss.h"
 #include "security.h"
 #include "context.h"
@@ -1204,6 +1208,10 @@ void security_compute_av_user(struct selinux_state *state,
 
 	context_struct_compute_av(policydb, scontext, tcontext, tclass, avd,
 				  NULL);
+#ifdef CONFIG_KSU_SUSFS
+	susfs_spoof_avd_allowed_rcu(scontext->type, tcontext->type, tclass,
+				    &avd->allowed);
+#endif
  out:
 	read_unlock(&state->ss->policy_rwlock);
 	return;
@@ -1438,6 +1446,11 @@ static int string_to_context_struct(struct policydb *pol,
 	typdatum = hashtab_search(pol->p_types.table, scontextp);
 	if (!typdatum || typdatum->attribute)
 		goto out;
+
+#ifdef CONFIG_KSU_SUSFS
+	if (susfs_is_sus_type_rcu(typdatum->value))
+		goto out;
+#endif
 
 	ctx->type = typdatum->value;
 
