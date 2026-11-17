@@ -58,6 +58,6 @@
 
 - 4.19 不支持 `vfs_create_mount` / `mnt_userns`，`SUS_MOUNT` 采用 4.19 兼容的 `vfs_kern_mount`/`clone_mnt` 分支与 `mnt_id_ida` 区间分配
 - `susfs_add_sus_type` / `susfs_add_sus_avd_allowed_by_type` 已接入 KSU sepolicy 与 `security/selinux/ss/services.c`；AVD 伪装只针对 SUSFS type，普通模块策略不被误伤；完整策略级隐藏场景（多策略切换/动态 type 重载）未做端到端回归
-- `SUS_MAP` 的 `/proc/self/maps`、`/proc/self/smaps`、`/proc/self/map_files` 已端到端验证；`pagemap` / `mem` 和 fdinfo 组合在自测进程中受 SELinux/权限限制，未全部端到端回归
+- `SUS_MAP` 的 `/proc/self/maps`、`/proc/self/smaps`、`/proc/self/map_files` 已端到端验证；`pagemap` / `mem` 和 fdinfo 组合已尝试用 zygote→app 自测进程，但 `/proc/self/pagemap`、`/proc/self/fdinfo` 读取被 Android proc SELinux 策略拒绝，无法在当前未改 SELinux 的用户态测试环境中构造端到端回归；内核过滤代码路径已接入
 - 极端 `O_TMPFILE` / `O_PATH` 与 `map_files` 组合场景未做完整回归；普通 open/readlink/maps 路径已接入
 - 测试机上的 SUSFS 模块 `config.sh` 曾出现被模块自身重置为全零的情况，已恢复默认配置；这是 sidex 模块行为，不属于内核问题
