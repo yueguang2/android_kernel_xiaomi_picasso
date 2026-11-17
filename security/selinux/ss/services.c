@@ -1209,8 +1209,16 @@ void security_compute_av_user(struct selinux_state *state,
 	context_struct_compute_av(policydb, scontext, tcontext, tclass, avd,
 				  NULL);
 #ifdef CONFIG_KSU_SUSFS
-	susfs_spoof_avd_allowed_rcu(scontext->type, tcontext->type, tclass,
-				    &avd->allowed);
+	/*
+	 * Only spoof policy decisions involving a SUSFS-marked type.  KSU also
+	 * adds ordinary module policy rules (for example Vector's dex2oat rule);
+	 * those must remain visible to SELinux.checkSELinuxAccess(), otherwise
+	 * userspace frameworks conclude that their policy is not loaded.
+	 */
+	if (susfs_is_sus_type_rcu(scontext->type) ||
+	    susfs_is_sus_type_rcu(tcontext->type))
+		susfs_spoof_avd_allowed_rcu(scontext->type, tcontext->type, tclass,
+					    &avd->allowed);
 #endif
  out:
 	read_unlock(&state->ss->policy_rwlock);

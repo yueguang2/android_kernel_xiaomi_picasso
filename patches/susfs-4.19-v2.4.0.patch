@@ -5385,7 +5385,7 @@ index 7f2f7997e224..cfc4bd4b926a 100644
  #else
  	if (rc)
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 51aabc438590..503eb93850dc 100644
+index 51aabc438590..2ce5c2484d5f 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
 @@ -55,6 +55,10 @@
@@ -5399,18 +5399,26 @@ index 51aabc438590..503eb93850dc 100644
  #include "avc_ss.h"
  #include "security.h"
  #include "context.h"
-@@ -1204,6 +1208,10 @@ void security_compute_av_user(struct selinux_state *state,
+@@ -1204,6 +1208,18 @@ void security_compute_av_user(struct selinux_state *state,
  
  	context_struct_compute_av(policydb, scontext, tcontext, tclass, avd,
  				  NULL);
 +#ifdef CONFIG_KSU_SUSFS
-+	susfs_spoof_avd_allowed_rcu(scontext->type, tcontext->type, tclass,
-+				    &avd->allowed);
++	/*
++	 * Only spoof policy decisions involving a SUSFS-marked type.  KSU also
++	 * adds ordinary module policy rules (for example Vector's dex2oat rule);
++	 * those must remain visible to SELinux.checkSELinuxAccess(), otherwise
++	 * userspace frameworks conclude that their policy is not loaded.
++	 */
++	if (susfs_is_sus_type_rcu(scontext->type) ||
++	    susfs_is_sus_type_rcu(tcontext->type))
++		susfs_spoof_avd_allowed_rcu(scontext->type, tcontext->type, tclass,
++					    &avd->allowed);
 +#endif
   out:
  	read_unlock(&state->ss->policy_rwlock);
  	return;
-@@ -1439,6 +1447,11 @@ static int string_to_context_struct(struct policydb *pol,
+@@ -1439,6 +1455,11 @@ static int string_to_context_struct(struct policydb *pol,
  	if (!typdatum || typdatum->attribute)
  		goto out;
  
