@@ -54,6 +54,8 @@
 ## 已知限制
 
 - 4.19 不支持 `vfs_create_mount` / `mnt_userns`，`SUS_MOUNT` 采用 4.19 兼容的 `vfs_kern_mount`/`clone_mnt` 分支与 `mnt_id_ida` 区间分配
-- SELinux 策略级 `susfs_add_sus_type` 未接入；`enable_avc_log_spoofing` 的 AVC `tsid`/`tcontext` 伪装已接入并完成构建验证，未做完整策略场景回归
+- `susfs_add_sus_type` / `susfs_add_sus_avd_allowed_by_type` 已接入 KSU sepolicy 与 `security/selinux/ss/services.c`；完整策略级隐藏场景（多策略切换/动态 type 重载）未做端到端回归
+- `enable_avc_log_spoofing` 的 AVC `tsid`/`tcontext` 伪装已接入并完成构建验证，未构造出真实 `ksu` 域 AVC denial 场景做完整回归
+- `SUS_MAP` 的 maps/smaps/pagemap/map_files 过滤路径已接入；普通 app 上下文无法构造带 `TIF_PROC_UMOUNTED` 的测试进程，未做端到端用户态回归
 - 极端 `O_TMPFILE` / `O_PATH` 与 `map_files` 组合场景未做完整回归；普通 open/readlink/maps 路径已接入
 - 测试机上的 SUSFS 模块 `config.sh` 曾出现被模块自身重置为全零的情况，已恢复默认配置；这是 sidex 模块行为，不属于内核问题
