@@ -33,6 +33,8 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 
 构建脚本和依赖说明见 `docs/build.md`。构建产物不提交到仓库，boot 镜像通过 Releases 发布。
 
+当前测试版 Release：[v2.0.0-ksu3.3.1-susfs1.5.11-test](https://github.com/yueguang2/android_kernel_xiaomi_picasso/releases/tag/v2.0.0-ksu3.3.1-susfs1.5.11-test)
+
 ## 刷入与回滚
 
 见 `docs/flashing.md`。任何实验镜像都必须保留原 boot 备份，确认能进入 fastboot 后再刷入。
