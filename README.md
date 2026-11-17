@@ -12,6 +12,7 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 | `next/ksu-3.3.1-susfs-2.4.0` | KernelSU 3.3.1+ + SUSFS 4.19 backport | 开发中 |
 | `feature/ksu3.3.1-on-73fe` | KernelSU 3.3.1 + 73fe 稳定基线 | 编译通过；真机启动、`su -c id` 已验证；SUSFS 待接入 |
 | `feature/ksu3.3.1-susfs-1.5.11-on-73fe` | KernelSU 3.3.1 + SUSFS 1.5.11 + 73fe 稳定基线 | 真机启动、root、`susfs is initialized v1.5.11`、Vector/Xposed 模块、微信/银行登录和 `ksu_susfs` 命令桥接已验证 |
+| `feature/ksu3.3.1-susfs-2.4.0-on-73fe` | KernelSU 3.3.1 + SUSFS 2.4.0 4.19 backport + 73fe 稳定基线 | 真机启动、root、`susfs is initialized v2.4.0`、连续 3 次重启稳定；`SUS_PATH` 应用侧隐藏和 `SUS_KSTAT`/`SUS_MAP`/`PRIORITY_UID_FILTER` 命令已验证；`SUS_MOUNT` 完整隐蔽性待继续验证 |
 
 ## 设备与系统
 
@@ -36,7 +37,9 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 
 当前测试版 Release：[v2.0.1-ksu3.3.1-susfs1.5.11](https://github.com/yueguang2/android_kernel_xiaomi_picasso/releases/tag/v2.0.1-ksu3.3.1-susfs1.5.11)
 
-SUSFS 模块建议使用 Release 中的 `susfs4ksu_sidex_v1.5.2-R28.zip`；安装脚本会读取内核 SUSFS 版本，安装后模块版本自动显示为 `v1.5.11-R28`。
+SUSFS 模块建议使用 Release 中的 `susfs4ksu_sidex_v1.5.2-R28.zip`；安装脚本会读取内核 SUSFS 版本，安装后模块版本自动显示为 `v1.5.11-R28`。切换到 2.4.0 内核后，同一模块会显示为 `v2.4.0-R28`，无需换模块。
+
+2.4.0 本地测试镜像：`ksu331_73fe_susfs240_boot.img`（fastboot 直刷）和 `ksu331_73fe_susfs240.zip`（AnyKernel3 Recovery 刷入），对应 `feature/ksu3.3.1-susfs-2.4.0-on-73fe` 分支。
 
 ## 刷入与回滚
 

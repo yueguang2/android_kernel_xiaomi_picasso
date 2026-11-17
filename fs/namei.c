@@ -47,6 +47,12 @@
 #include "internal.h"
 #include "mount.h"
 
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+#ifndef ND_STATE_LAST_SDCARD_SUS_PATH
+#define ND_STATE_LAST_SDCARD_SUS_PATH 128
+#endif
+#endif
+
 #define CREATE_TRACE_POINTS
 #include <trace/events/namei.h>
 
@@ -1731,8 +1737,6 @@ static int lookup_fast(struct nameidata *nd,
 		unsigned seq;
 		bool negative;
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
-		unsigned backup_next_seq;
-
 		if (is_nd_state_lookup_last_and_open_last && parent->d_inode) {
 			if (susfs_is_base_dentry_android_data_dir(parent) &&
 				susfs_is_sus_android_data_d_name_found(nd->last.name))
@@ -1751,8 +1755,10 @@ static int lookup_fast(struct nameidata *nd,
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
 		if (is_nd_state_lookup_last_and_open_last && dentry && !IS_ERR(dentry) && dentry->d_inode) {
 			if (susfs_is_inode_sus_path(dentry->d_inode)) {
-				dput(dentry);
-				dentry = __d_lookup_rcu(parent, &susfs_fake_qstr_name, &backup_next_seq);
+				if (d_in_lookup(dentry))
+					d_lookup_done(dentry);
+				/* __d_lookup_rcu() does not take a refcount */
+				dentry = NULL;
 			}
 		}
 skip_orig_flow1:
@@ -3912,7 +3918,7 @@ static struct file *path_openat(struct nameidata *nd,
 }
 
 #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
-extern struct filename* susfs_get_redirected_path(unsigned long ino);
+extern struct filename *susfs_open_redirect_spoof_do_sys_openat(struct inode *inode);
 #endif
 
 struct file *do_filp_open(int dfd, struct filename *pathname,
@@ -3932,8 +3938,8 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 	if (unlikely(filp == ERR_PTR(-ESTALE)))
 		filp = path_openat(&nd, op, flags | LOOKUP_REVAL);
 #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
-	if (!IS_ERR(filp) && unlikely(filp->f_inode->i_mapping->flags & BIT_OPEN_REDIRECT) && current_uid().val < 2000) {
-		fake_pathname = susfs_get_redirected_path(filp->f_inode->i_ino);
+	if (!IS_ERR(filp) && SUSFS_IS_INODE_OPEN_REDIRECT(filp->f_inode) && current_uid().val < 2000) {
+		fake_pathname = susfs_open_redirect_spoof_do_sys_openat(filp->f_inode);
 		if (!IS_ERR(fake_pathname)) {
 			restore_nameidata();
 			filp_close(filp, NULL);

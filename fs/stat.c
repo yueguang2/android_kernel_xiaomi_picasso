@@ -25,7 +25,8 @@
 #include <asm/unistd.h>
 
 #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-extern void susfs_sus_ino_for_generic_fillattr(unsigned long ino, struct kstat *stat);
+extern bool susfs_is_inode_sus_kstat(struct inode *inode, bool *out_is_fuse);
+extern void susfs_sus_kstat_spoof_generic_fillattr(struct inode *inode, struct kstat *stat, u32 result_mask);
 #endif
 
 /**
@@ -39,17 +40,6 @@ extern void susfs_sus_ino_for_generic_fillattr(unsigned long ino, struct kstat *
  */
 void generic_fillattr(struct inode *inode, struct kstat *stat)
 {
-#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-	if (likely(susfs_is_current_proc_umounted()) &&
-			unlikely(inode->i_mapping->flags & BIT_SUS_KSTAT)) {
-		susfs_sus_ino_for_generic_fillattr(inode->i_ino, stat);
-		stat->mode = inode->i_mode;
-		stat->rdev = inode->i_rdev;
-		stat->uid = inode->i_uid;
-		stat->gid = inode->i_gid;
-		return;
-	}
-#endif
 	stat->dev = inode->i_sb->s_dev;
 	stat->ino = inode->i_ino;
 	stat->mode = inode->i_mode;
@@ -68,6 +58,15 @@ void generic_fillattr(struct inode *inode, struct kstat *stat)
 		stat->result_mask &= ~STATX_ATIME;
 	if (IS_AUTOMOUNT(inode))
 		stat->attributes |= STATX_ATTR_AUTOMOUNT;
+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+	if (susfs_is_current_app_uid()) {
+		bool is_fuse = false;
+
+		if (susfs_is_inode_sus_kstat(inode, &is_fuse))
+			susfs_sus_kstat_spoof_generic_fillattr(inode, stat,
+					is_fuse ? STATX_SUS_KSTAT_FUSE : STATX_SUS_KSTAT);
+	}
+#endif
 }
 EXPORT_SYMBOL(generic_fillattr);
 

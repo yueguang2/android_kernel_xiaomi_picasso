@@ -31,4 +31,15 @@ make O=../out/picasso/ksu ARCH=arm64 \
   LLVM=1 LLVM_IAS=1 LD=ld.lld -j$(nproc)
 ```
 
+
+## SUSFS 2.4.0 分支
+
+`feature/ksu3.3.1-susfs-2.4.0-on-73fe` 使用独立的 KernelSU 集成补丁：
+
+```bash
+git submodule update --init --recursive
+git -C KernelSU apply ../patches/kernelsu-3.3.1-susfs-2.4.0.patch
+```
+
+内核侧补丁 `patches/susfs-4.19-v2.4.0.patch` 已在分支提交中，不需要在 2.4.0 工作树上重复应用；它用于从 1.5.11 基线复现到 2.4.0。
 具体配置和打包命令以 `build.sh` 与 `scripts/` 下的脚本为准。构建产物不要提交到 Git。
