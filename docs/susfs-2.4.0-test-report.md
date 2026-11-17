@@ -17,7 +17,7 @@
 
 ## 真机验证（Redmi K30 5G / picasso / YAAP 16）
 
-- `fastboot boot` 测试通过；`fastboot flash boot` 持久化后连续 3 次重启，`sys.boot_completed=1`
+- `fastboot boot` 测试通过；`fastboot flash boot` 持久化后多次重启（最终镜像连续 2 次）均 `sys.boot_completed=1`
 - `su -c id` 返回 `uid=0(root) ... context=u:r:ksu:s0`
 - `/proc/version`：`4.19.248-NonLa-2.0-gef536713b553-dirty`
 - `ksu_susfs show version`：`v2.4.0`
