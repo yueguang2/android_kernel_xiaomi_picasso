@@ -25,6 +25,7 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 ## 上游关系
 
 - 内核上游：[august-aosp/android_kernel_xiaomi_picasso](https://github.com/august-aosp/android_kernel_xiaomi_picasso)
+- 上游 draft PR：[susfs: backport v1.5.11 to 4.19 (#1)](https://github.com/august-aosp/android_kernel_xiaomi_picasso/pull/1)
 - KernelSU：[tiann/KernelSU](https://github.com/tiann/KernelSU)；旧内核兼容参考 [backslashxx/KernelSU](https://github.com/backslashxx/KernelSU)
 - SUSFS：[simonpunk/susfs4ksu](https://gitlab.com/simonpunk/susfs4ksu)
 - Zygisk：[NeoZygisk](https://github.com/Dr-TSNG/NeoZygisk) + [Vector](https://github.com/JingMatrix/Vector)
