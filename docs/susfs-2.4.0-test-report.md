@@ -7,7 +7,7 @@
 - 分支：`feature/ksu3.3.1-susfs-2.4.0-on-73fe`
 - 基线：`feature/ksu3.3.1-susfs-1.5.11-on-73fe`（`ef536713b553`）
 - KernelSU：3.3.1（submodule `3b60f2af951d1dd9540421ac9b57156912ddedaf`）
-- 内核：`4.19.248-NonLa-2.0-g5a3c4dfc0258-dirty`
+- 内核：`4.19.248-NonLa-2.0-g6c681612e18a-dirty`
 - 编译：clang 18.1.8 + LLD 18.1.8，arm64
 - 内核源码目录：`/home/yueguang/DSH/安卓/repos/picasso-kernel-ksu-susfs-24`
 - 构建 O：`/home/yueguang/DSH/安卓/repos/out/picasso/ksu24`
@@ -38,7 +38,7 @@
 
 - `fastboot flash boot` 持久化后多次重启均 `sys.boot_completed=1`
 - `su -c id` 返回 `uid=0(root) ... context=u:r:ksu:s0`；普通 shell 的 `su` 兼容路径正常
-- `/proc/version`：`4.19.248-NonLa-2.0-g5a3c4dfc0258-dirty`
+- `/proc/version`：`4.19.248-NonLa-2.0-g6c681612e18a-dirty`
 - `/data/adb/modules/susfs4ksu/module.prop`：`v2.4.0-R28`
 - `SUS_PATH`：`add_sus_path /data/local/tmp/susfs_secret2` 后，root 可读，普通应用 uid 10238 读取返回 `No such file or directory`
 - `SUS_KSTAT`：`add_sus_kstat_statically ... 999 ...` 后，root 看到真实大小 4，应用 uid 10238 看到 999
