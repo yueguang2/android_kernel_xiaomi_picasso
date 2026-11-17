@@ -36,6 +36,8 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 
 当前测试版 Release：[v2.0.1-ksu3.3.1-susfs1.5.11](https://github.com/yueguang2/android_kernel_xiaomi_picasso/releases/tag/v2.0.1-ksu3.3.1-susfs1.5.11)
 
+SUSFS 模块建议使用 Release 中的 `susfs4ksu_sidex_v1.5.2-R28.zip`；安装脚本会读取内核 SUSFS 版本，安装后模块版本自动显示为 `v1.5.11-R28`。
+
 ## 刷入与回滚
 
 见 `docs/flashing.md`。任何实验镜像都必须保留原 boot 备份，确认能进入 fastboot 后再刷入。
