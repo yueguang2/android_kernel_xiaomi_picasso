@@ -37,6 +37,7 @@
 extern bool susfs_is_current_ksu_domain(void);
 extern bool susfs_is_current_zygote_domain(void);
 extern bool susfs_is_boot_completed_triggered;
+extern struct static_key_true susfs_is_sdcard_android_data_not_decrypted;
 
 static DEFINE_IDA(susfs_ksu_mnt_group_ida);
 
@@ -164,7 +165,7 @@ static int mnt_alloc_group_id(struct mount *mnt)
 	 *   if it is ksu mounts, until susfs_is_boot_completed_triggered is set to true
 	 *   when boot-completed stage is triggered in core_hook.c 
 	 */
-	if (!susfs_is_boot_completed_triggered && mnt->mnt_id >= DEFAULT_KSU_MNT_ID) {
+	if (mnt->mnt_id >= DEFAULT_KSU_MNT_ID) {
 		res = ida_alloc_min(&susfs_ksu_mnt_group_ida, DEFAULT_KSU_MNT_GROUP_ID, GFP_KERNEL);
 		goto bypass_orig_flow;
 	}
@@ -195,7 +196,7 @@ void mnt_release_group_id(struct mount *mnt)
 	 *   function will throw error to kernel log, but it won't affect the system,
 	 *   so it is fine.
 	 */
-	if (!susfs_is_boot_completed_triggered && mnt->mnt_group_id >= DEFAULT_KSU_MNT_GROUP_ID) {
+	if (mnt->mnt_group_id >= DEFAULT_KSU_MNT_GROUP_ID) {
 		ida_free(&susfs_ksu_mnt_group_ida, mnt->mnt_group_id);
 		mnt->mnt_group_id = 0;
 		return;
@@ -303,14 +304,19 @@ out_free_cache:
 static struct mount *susfs_alloc_sus_vfsmnt(const char *name)
 {
 	struct mount *mnt = kmem_cache_zalloc(mnt_cache, GFP_KERNEL);
+	int res;
+
 	if (mnt) {
-		mnt->mnt_id = DEFAULT_KSU_MNT_ID;
+		res = ida_alloc_min(&mnt_id_ida, DEFAULT_KSU_MNT_ID, GFP_KERNEL);
+		if (res < 0)
+			goto out_free_cache;
+		mnt->mnt_id = res;
 
 		if (name) {
 			mnt->mnt_devname = kstrdup_const(name,
 							 GFP_KERNEL_ACCOUNT);
 			if (!mnt->mnt_devname)
-				goto out_free_cache;
+				goto out_free_id;
 		}
 
 #ifdef CONFIG_SMP
@@ -344,6 +350,8 @@ static struct mount *susfs_alloc_sus_vfsmnt(const char *name)
 out_free_devname:
 	kfree_const(mnt->mnt_devname);
 #endif
+out_free_id:
+	ida_free(&mnt_id_ida, mnt->mnt_id);
 out_free_cache:
 	kmem_cache_free(mnt_cache, mnt);
 	return NULL;
@@ -796,10 +804,24 @@ struct mount *__lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
 {
 	struct hlist_head *head = m_hash(mnt, dentry);
 	struct mount *p;
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	struct mount *tmp = NULL;
+#endif
 
 	hlist_for_each_entry_rcu(p, head, mnt_hash)
-		if (&p->mnt_parent->mnt == mnt && p->mnt_mountpoint == dentry)
+		if (&p->mnt_parent->mnt == mnt && p->mnt_mountpoint == dentry) {
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+			if (p->mnt_id >= DEFAULT_KSU_MNT_ID && likely(susfs_is_current_proc_umounted())) {
+				tmp = p;
+				continue;
+			}
+#endif
 			return p;
+		}
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	if (tmp)
+		return tmp;
+#endif
 	return NULL;
 }
 
@@ -1134,18 +1156,13 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 		return ERR_PTR(-ENODEV);
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	// - We do not check anymore if boot-completed stage is triggered
-	//   just to stop the performance loss
-	if (susfs_is_boot_completed_triggered) {
-		goto orig_flow;
-	}
-
-	// We only check for ksu process
-	if (susfs_is_current_ksu_domain()) {
+	// Only mounts created before /sdcard/Android is decrypted can be
+	// KSU private mounts; after that, mounts are normal.
+	if (static_branch_unlikely(&susfs_is_sdcard_android_data_not_decrypted) &&
+	    susfs_is_current_ksu_domain()) {
 		mnt = susfs_alloc_sus_vfsmnt(name);
 		goto bypass_orig_flow;
 	}
-orig_flow:
 #endif
 	mnt = alloc_vfsmnt(name);
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -1206,14 +1223,9 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 	int err;
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	// - We do not check anymore if boot-completed stage is triggered
-	//   just to stop the performance loss
-	if (susfs_is_boot_completed_triggered) {
-		goto orig_flow;
-	}
-
 	// First we must check for ksu process because of magic mount
-	if (susfs_is_current_ksu_domain()) {
+	if (static_branch_unlikely(&susfs_is_sdcard_android_data_not_decrypted) &&
+	    susfs_is_current_ksu_domain()) {
 		// if it is unsharing, we reuse the old->mnt_id
 		if (flag & CL_COPY_MNT_NS) {
 			mnt = susfs_reuse_sus_vfsmnt(old->mnt_devname, old->mnt_id);
@@ -1224,13 +1236,12 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 		goto bypass_orig_flow;
 	}
 
-	// Lastly for other processes of which old->mnt_id == DEFAULT_KSU_MNT_ID, go assign fake mnt_id
-	if (old->mnt_id == DEFAULT_KSU_MNT_ID) {
+	// Lastly for other processes of which old->mnt_id is a fake ID,
+	// go assign a new fake mnt_id for the cloned mount.
+	if (old->mnt_id >= DEFAULT_KSU_MNT_ID) {
 		mnt = susfs_alloc_sus_vfsmnt(old->mnt_devname);
 		goto bypass_orig_flow;
 	}
-
-orig_flow:
 #endif
 
 	mnt = alloc_vfsmnt(old->mnt_devname);

@@ -989,6 +989,18 @@ void susfs_add_sus_kstat(void __user **user_info) {
 		goto out_copy_to_user;
 	}
 
+	/*
+	 * Dynamic add captures every field from the current inode. Some
+	 * userspace tools leave flags zero; treat that as "spoof all".
+	 */
+	if (!info.is_statically && info.flags == 0)
+		info.flags = KSTAT_SPOOF_INO | KSTAT_SPOOF_DEV | KSTAT_SPOOF_NLINK |
+			     KSTAT_SPOOF_SIZE | KSTAT_SPOOF_ATIME_TV_SEC |
+			     KSTAT_SPOOF_ATIME_TV_NSEC | KSTAT_SPOOF_MTIME_TV_SEC |
+			     KSTAT_SPOOF_MTIME_TV_NSEC | KSTAT_SPOOF_CTIME_TV_SEC |
+			     KSTAT_SPOOF_CTIME_TV_NSEC | KSTAT_SPOOF_BLOCKS |
+			     KSTAT_SPOOF_BLKSIZE;
+
 #if defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_COMPAT_STAT64)
 	info.spoofed_dev = huge_decode_dev(info.spoofed_dev);
 #else

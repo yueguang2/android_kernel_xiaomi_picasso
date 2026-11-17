@@ -34,12 +34,12 @@ make O=../out/picasso/ksu ARCH=arm64 \
 
 ## SUSFS 2.4.0 分支
 
-`feature/ksu3.3.1-susfs-2.4.0-on-73fe` 使用独立的 KernelSU 集成补丁：
+`feature/ksu3.3.1-susfs-2.4.0-on-73fe` 只使用一个 KernelSU 集成补丁（它已包含 Kconfig、`susfs_init()`、sucompat、setuid hook、sdcard monitor 和命令分发）：
 
 ```bash
 git submodule update --init --recursive
 git -C KernelSU apply ../patches/kernelsu-3.3.1-susfs-2.4.0.patch
 ```
 
-内核侧补丁 `patches/susfs-4.19-v2.4.0.patch` 已在分支提交中，不需要在 2.4.0 工作树上重复应用；它用于从 1.5.11 基线复现到 2.4.0。
+内核侧完整 backport 为 `patches/susfs-4.19-v2.4.0.patch`，基于 1.5.11 基线（`ef536713b553`）到当前 2.4.0 分支；分支提交已包含等价改动，无需重复应用。
 具体配置和打包命令以 `build.sh` 与 `scripts/` 下的脚本为准。构建产物不要提交到 Git。
