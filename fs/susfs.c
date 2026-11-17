@@ -170,7 +170,7 @@ int susfs_add_sus_path(struct st_susfs_sus_path* __user user_info) {
 		goto out_kfree_tmp_buf;
 	}
 
-	if (strstr(resolved_pathname, android_data_path.pathname)) {
+	if (android_data_path.is_inited && strstr(resolved_pathname, android_data_path.pathname)) {
 		if (!android_data_path.is_inited) {
 			err = -EINVAL;
 			SUSFS_LOGE("android_data_path is not configured yet, plz do like 'ksu_susfs set_android_data_root_path /sdcard/Android/data' first after your screen is unlocked\n");
@@ -207,7 +207,7 @@ int susfs_add_sus_path(struct st_susfs_sus_path* __user user_info) {
 					new_list->info.target_ino, new_list->target_pathname, new_list->info.i_uid);
 		spin_unlock(&susfs_spin_lock);
 		goto out_kfree_tmp_buf;
-	} else if (strstr(resolved_pathname, sdcard_path.pathname)) {
+	} else if (sdcard_path.is_inited && strstr(resolved_pathname, sdcard_path.pathname)) {
 		if (!sdcard_path.is_inited) {
 			err = -EINVAL;
 			SUSFS_LOGE("sdcard_path is not configured yet, plz do like 'ksu_susfs set_sdcard_root_path /sdcard' first after your screen is unlocked\n");

@@ -5,6 +5,7 @@
 当前实际文件：
 
 - `susfs-4.19-v1.5.11.patch`：上游 `88836` 的 SUSFS v1.5.11 内核侧 4.19 补丁（目前在 `feature/susfs-1.5.11` 上验证编译）
+- `susfs-4.19-v1.5.11-path-root-fix.patch`：修复未配置 Android data / sdcard root 时，空路径匹配导致 `add_sus_path` 失败的问题
 - `kernelsu-3.3.1-stale-hooks-compat.patch`：为 upstream `staging` 的旧 manual hook 引用补 KSU 兼容符号
 - `kernelsu-3.3.1-susfs-kconfig.patch`：为 KernelSU Kconfig 增加 SUSFS 选项
 - `kernelsu-3.3.1-susfs-init.patch`：在 KernelSU 初始化时调用 `susfs_init()`
