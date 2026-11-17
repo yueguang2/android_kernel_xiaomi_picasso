@@ -11,7 +11,7 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 | `stable-ksu-1.0.5-susfs-1.5.5` | KernelSU 1.0.5 + SUSFS 1.5.5 + NeoZygisk + Vector | 设备已验证 |
 | `next/ksu-3.3.1-susfs-2.4.0` | KernelSU 3.3.1+ + SUSFS 4.19 backport | 开发中 |
 | `feature/ksu3.3.1-on-73fe` | KernelSU 3.3.1 + 73fe 稳定基线 | 编译通过；真机启动、`su -c id` 已验证；SUSFS 待接入 |
-| `feature/ksu3.3.1-susfs-1.5.11-on-73fe` | KernelSU 3.3.1 + SUSFS 1.5.11 + 73fe 稳定基线 | 真机启动、root、`susfs is initialized v1.5.11`、Vector，以及 `ksu_susfs enable_log` 命令桥接已验证 |
+| `feature/ksu3.3.1-susfs-1.5.11-on-73fe` | KernelSU 3.3.1 + SUSFS 1.5.11 + 73fe 稳定基线 | 真机启动、root、`susfs is initialized v1.5.11`、Vector/Xposed 模块、微信/银行登录和 `ksu_susfs` 命令桥接已验证 |
 
 ## 设备与系统
 
