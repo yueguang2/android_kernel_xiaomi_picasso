@@ -14,8 +14,8 @@
 
 最终产物：
 
-- `ksu331_73fe_susfs240_full_boot.img`（fastboot 直刷，sha256 `0979807adaa67e37cdb67048d3a7644f5398402a6efc19e3f822d0db71c5e08e`）
-- `ksu331_73fe_susfs240_full.zip`（AnyKernel3，Recovery 刷入，sha256 `0d02804c3f26392c82e032f63432103386f21127a497b3d02e02bdbebbd98907`）
+- `ksu331_73fe_susfs240_full_boot.img`（fastboot 直刷，sha256 `789f6ede7e752ebfdc0fa003b3e8a91705c0a39754f2db49972a0836be1baa5c`）
+- `ksu331_73fe_susfs240_full.zip`（AnyKernel3，Recovery 刷入，sha256 `0af87b2e36f4c6a5bf80256770744f20ff0f82e8fb8155a77daf22453872e3c1`）
 
 ## 开启的功能
 
@@ -47,6 +47,7 @@
 - `SPOOF_UNAME`：`set_uname 4.19.248-test SUSFS-TEST` 后应用看到测试值，`set_uname default default` 可恢复
 - `SPOOF_CMDLINE_OR_BOOTCONFIG`：`set_cmdline_or_bootconfig /data/local/tmp/fake_cmdline` 后读取 `/proc/cmdline` 得到伪内容（root/应用侧均走同一 proc 输出路径）
 - SELinux policy 层：KSU `sepolicy.c` 已调用 `susfs_add_sus_type` / `susfs_add_sus_avd_allowed_by_type`，`security/selinux/ss/services.c` 已接入 SUS 类型解析跳过与 AVD allowed 恢复；开机 `Enforcing` 正常
+- Vector 框架：修复 sepolicy 加载、daemon 启动时机和 SUSFS AVD 伪装范围后，Vector Manager 系统状态显示 `SELinux 策略：已加载`、`系统框架：已注入`、`Dex 优化器包装：支持`（详见 `docs/vector-framework-fix.md`）
 - `SUS_MAP`：用 zygote 域自测程序在 `setresuid(10242)` 后测试，`add_sus_map /data/local/tmp/susfs_target` 前 `/proc/self/maps`、`/proc/self/smaps` 均可见目标映射（退出码 1），添加后均不可见（退出码 0）；`/proc/self/map_files` 的条目数由 4 变为 3，证明 maps/smaps/map_files 过滤路径端到端生效
 - `AVC log spoofing`：`enable_avc_log_spoofing 1` 后，以 `u:r:untrusted_app:s0` 对 ksu 域进程执行 `kill -0`，dmesg 记录 `replace tsid: 567 with priv_app_sid: 571`，AVC 行显示 `tcontext=u:r:priv_app:s0:c512,c768`，伪装生效
 - `add_sus_path_loop` / `set_priority_uid_filter` 命令均返回成功并写入 dmesg；包安装/更新后通过 `pkg_observer` 刷新 SUS_PATH/priority UID 过滤器
@@ -56,7 +57,7 @@
 ## 已知限制
 
 - 4.19 不支持 `vfs_create_mount` / `mnt_userns`，`SUS_MOUNT` 采用 4.19 兼容的 `vfs_kern_mount`/`clone_mnt` 分支与 `mnt_id_ida` 区间分配
-- `susfs_add_sus_type` / `susfs_add_sus_avd_allowed_by_type` 已接入 KSU sepolicy 与 `security/selinux/ss/services.c`；完整策略级隐藏场景（多策略切换/动态 type 重载）未做端到端回归
+- `susfs_add_sus_type` / `susfs_add_sus_avd_allowed_by_type` 已接入 KSU sepolicy 与 `security/selinux/ss/services.c`；AVD 伪装只针对 SUSFS type，普通模块策略不被误伤；完整策略级隐藏场景（多策略切换/动态 type 重载）未做端到端回归
 - `SUS_MAP` 的 `/proc/self/maps`、`/proc/self/smaps`、`/proc/self/map_files` 已端到端验证；`pagemap` / `mem` 和 fdinfo 组合在自测进程中受 SELinux/权限限制，未全部端到端回归
 - 极端 `O_TMPFILE` / `O_PATH` 与 `map_files` 组合场景未做完整回归；普通 open/readlink/maps 路径已接入
 - 测试机上的 SUSFS 模块 `config.sh` 曾出现被模块自身重置为全零的情况，已恢复默认配置；这是 sidex 模块行为，不属于内核问题

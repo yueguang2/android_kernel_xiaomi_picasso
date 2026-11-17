@@ -12,7 +12,7 @@ Redmi K30 5G (**picasso**, SM7250/lito) 的 **4.19 非 GKI** 内核分支，目�
 | `next/ksu-3.3.1-susfs-2.4.0` | KernelSU 3.3.1+ + SUSFS 4.19 backport | 已被下方完整功能分支取代 |
 | `feature/ksu3.3.1-on-73fe` | KernelSU 3.3.1 + 73fe 稳定基线 | 编译通过；真机启动、`su -c id` 已验证；SUSFS 待接入 |
 | `feature/ksu3.3.1-susfs-1.5.11-on-73fe` | KernelSU 3.3.1 + SUSFS 1.5.11 + 73fe 稳定基线 | 真机启动、root、`susfs is initialized v1.5.11`、Vector/Xposed 模块、微信/银行登录和 `ksu_susfs` 命令桥接已验证 |
-| `feature/ksu3.3.1-susfs-2.4.0-on-73fe` | KernelSU 3.3.1 + SUSFS 2.4.0 4.19 backport + 73fe 稳定基线 | 完整功能已真机验证：启动/root/连续重启稳定，SUS_PATH、SUS_MOUNT、SUS_KSTAT、OPEN_REDIRECT、SPOOF_UNAME、SPOOF_CMDLINE、SELinux policy 元数据与命令桥均通过；AVC log spoof 已验证 |
+| `feature/ksu3.3.1-susfs-2.4.0-on-73fe` | KernelSU 3.3.1 + SUSFS 2.4.0 4.19 backport + 73fe 稳定基线 | 完整功能已真机验证：启动/root/连续重启稳定，SUS_PATH、SUS_MOUNT、SUS_KSTAT、OPEN_REDIRECT、SPOOF_UNAME、SPOOF_CMDLINE、SUS_MAP、SELinux policy 元数据与命令桥均通过；AVC log spoof 已验证；Vector 状态异常已修复 |
 
 ## 设备与系统
 
@@ -41,7 +41,7 @@ SUSFS 2.4.0 完整版 Release：[v2.2.0-ksu3.3.1-susfs2.4.0](https://github.com/
 
 SUSFS 模块建议使用 Release 中的 `susfs4ksu_sidex_v1.5.2-R28.zip`；安装脚本会读取内核 SUSFS 版本，安装后模块版本自动显示为 `v1.5.11-R28`。切换到 2.4.0 内核后，同一模块会显示为 `v2.4.0-R28`，无需换模块。
 
-2.4.0 完整镜像：`ksu331_73fe_susfs240_full_boot.img`（fastboot 直刷）和 `ksu331_73fe_susfs240_full.zip`（AnyKernel3 Recovery 刷入），对应 `feature/ksu3.3.1-susfs-2.4.0-on-73fe` 分支；详细验证见 `docs/susfs-2.4.0-test-report.md`。
+2.4.0 完整镜像：`ksu331_73fe_susfs240_full_boot.img`（fastboot 直刷）和 `ksu331_73fe_susfs240_full.zip`（AnyKernel3 Recovery 刷入），对应 `feature/ksu3.3.1-susfs-2.4.0-on-73fe` 分支；详细验证见 `docs/susfs-2.4.0-test-report.md`，Vector 状态修复见 `docs/vector-framework-fix.md`。
 
 ## 刷入与回滚
 
