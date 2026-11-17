@@ -16,6 +16,7 @@ git submodule update --init --recursive
 git -C KernelSU apply ../patches/kernelsu-3.3.1-stale-hooks-compat.patch
 git -C KernelSU apply ../patches/kernelsu-3.3.1-susfs-kconfig.patch
 git -C KernelSU apply ../patches/kernelsu-3.3.1-susfs-init.patch
+git -C KernelSU apply ../patches/kernelsu-3.3.1-susfs-prctl.patch
 ```
 
 然后构建：
