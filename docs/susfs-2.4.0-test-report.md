@@ -7,15 +7,15 @@
 - 分支：`feature/ksu3.3.1-susfs-2.4.0-on-73fe`
 - 基线：`feature/ksu3.3.1-susfs-1.5.11-on-73fe`（`ef536713b553`）
 - KernelSU：3.3.1（submodule `3b60f2af951d1dd9540421ac9b57156912ddedaf`）
-- 内核：`4.19.248-NonLa-2.0-ge73bc7cba03d-dirty`
+- 内核：`4.19.248-NonLa-2.0-g5a3c4dfc0258-dirty`
 - 编译：clang 18.1.8 + LLD 18.1.8，arm64
 - 内核源码目录：`/home/yueguang/DSH/安卓/repos/picasso-kernel-ksu-susfs-24`
 - 构建 O：`/home/yueguang/DSH/安卓/repos/out/picasso/ksu24`
 
 最终产物：
 
-- `ksu331_73fe_susfs240_full_boot.img`（fastboot 直刷，sha256 `ba77c0e8abd307f4ba8c8e24a7f8efb230b0f119ef6ba026f6f3e5fe57695d0f`）
-- `ksu331_73fe_susfs240_full.zip`（AnyKernel3，Recovery 刷入，sha256 `5d7faa2b93780ca33c97160bd8ec3aeb1f9ab4c8bfc8c551c1d719a1d02dc39a`）
+- `ksu331_73fe_susfs240_full_boot.img`（fastboot 直刷，sha256 `0979807adaa67e37cdb67048d3a7644f5398402a6efc19e3f822d0db71c5e08e`）
+- `ksu331_73fe_susfs240_full.zip`（AnyKernel3，Recovery 刷入，sha256 `0d02804c3f26392c82e032f63432103386f21127a497b3d02e02bdbebbd98907`）
 
 ## 开启的功能
 
@@ -38,7 +38,7 @@
 
 - `fastboot flash boot` 持久化后多次重启均 `sys.boot_completed=1`
 - `su -c id` 返回 `uid=0(root) ... context=u:r:ksu:s0`；普通 shell 的 `su` 兼容路径正常
-- `/proc/version`：`4.19.248-NonLa-2.0-ge73bc7cba03d-dirty`
+- `/proc/version`：`4.19.248-NonLa-2.0-g5a3c4dfc0258-dirty`
 - `/data/adb/modules/susfs4ksu/module.prop`：`v2.4.0-R28`
 - `SUS_PATH`：`add_sus_path /data/local/tmp/susfs_secret2` 后，root 可读，普通应用 uid 10238 读取返回 `No such file or directory`
 - `SUS_KSTAT`：`add_sus_kstat_statically ... 999 ...` 后，root 看到真实大小 4，应用 uid 10238 看到 999
